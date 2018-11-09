@@ -32,6 +32,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
     private Boolean visible = false;
+    private final BorderPane rootPane = new BorderPane();
     @Override
     public void start(Stage stage) {
         HBox hbox1 = new HBox(2);
@@ -61,30 +62,29 @@ public class Main extends Application {
         rightTop.setLeft(musicTitle);
         rightTop.setRight(timeCurrent);
         
-        Slider lecteurSlider = new Slider();
+        Slider playerSlider = new Slider();
         
         Slider sliderVolume = new Slider();
         BorderPane rightBottom = new BorderPane();
         rightBottom.setLeft(sliderVolume);
         Button equilizer = new Button("|||");
-        ToggleButton extendBtn = new ToggleButton(":=");
-        HBox hbox3 = new HBox(5,equilizer,extendBtn);
+        ToggleButton expandButton = new ToggleButton(":=");
+        HBox hbox3 = new HBox(5,equilizer,expandButton);
         rightBottom.setRight(hbox3);
         
         VBox vboxCenter = new VBox(8);
-        vboxCenter.getChildren().addAll(rightTop,lecteurSlider,rightBottom);
+        vboxCenter.getChildren().addAll(rightTop,playerSlider,rightBottom);
         vboxCenter.setPadding(new Insets(0, 0, 0, 10));
         
-        BorderPane rootPane = new BorderPane();
-        rootPane.setLeft(vboxLeft);
-        rootPane.setCenter(vboxCenter);
-        //TODO FIX height size
+        BorderPane playerPane = new BorderPane();
+        playerPane.setLeft(vboxLeft);
+        playerPane.setCenter(vboxCenter);
         
-        BorderPane expandPane = new BorderPane();
+        rootPane.setTop(playerPane);//mettre le lecteur dans le root principale
+        
         TreeTableView<musicModel> treeTable = new TreeTableView<>();
         treeTable.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
-        TreeItem<musicModel> root = new TreeItem<>(new musicModel("A Pile Of Dust","Johan Johaanson","4:00"));
-        //TODO FIX dureeCol doesn't show up
+        TreeItem<musicModel> rootItem = new TreeItem<>(new musicModel("Orphée","Johan Johaanson","16:00"));
         TreeTableColumn<musicModel,String> musicCol = new TreeTableColumn<>("Musique");
         musicCol.setCellValueFactory(new TreeItemPropertyValueFactory("Musique"));
         TreeTableColumn<musicModel,String> autorCol = new TreeTableColumn<>("Auteur");
@@ -92,29 +92,57 @@ public class Main extends Application {
         TreeTableColumn<musicModel,String> dureeCol = new TreeTableColumn<>("Durée");
         dureeCol.setCellValueFactory(new TreeItemPropertyValueFactory("Duree"));
         treeTable.getColumns().addAll(musicCol,autorCol,dureeCol);
-        treeTable.setRoot(root);
-        expandPane.setTop(treeTable);//TODO Replace with TreeViewtable
-        Pane pane = new Pane();//pane vide pour occuper l'espace a gauche du toolbox
-        HBox.setHgrow(pane, Priority.ALWAYS);
-        TextField textField = new TextField();
-        textField.setPromptText("Rechercher un titre");
-        expandPane.setBottom(new ToolBar(pane,textField));
+        treeTable.setRoot(rootItem);
+        musicModel musique1 = new musicModel("A Pile Of Dust","Johan Johaanson","04:00");
+        TreeItem<musicModel> tree1 = new TreeItem<>(musique1);
+        musicModel musique2 = new musicModel("How We Left Fordlandia ","Johan Johaanson","12:00");
+        TreeItem<musicModel> tree2 = new TreeItem<>(musique2);
         
-        extendBtn.setOnAction((event) -> {
+        rootItem.getChildren().addAll(tree1,tree2);
+        
+        /*On peut utiliser un borderPane
+        * Left (HBox pour les 3 buttons)
+        * Center Label
+        * Right Textfield
+        * Mais je trouve que cette solution avec Toolbar est plus joli niveau interface
+        */
+        Pane pane1 = new Pane();//pane vide pour occuper l'espace a gauche du toolbox
+        HBox.setHgrow(pane1, Priority.ALWAYS);
+        Pane pane2 = new Pane();//pane vide pour occuper l'espace a gauche du toolbox
+        HBox.setHgrow(pane2, Priority.ALWAYS);
+        TextField textField = new TextField();
+        textField.setPromptText("Rechercher un titre"); 
+        BorderPane expandPane = new BorderPane();
+        expandPane.setCenter(treeTable);
+        expandPane.setBottom(new ToolBar(new Button("+"),new Button("->"),new Button("-><-"),pane1,new Label("2 éléments"),pane2,textField));
+        
+        
+        
+        
+        expandButton.setOnAction((event) -> {
             visible = !visible; // changer la visiblité du tableau, on peut utiliser isChecked()
             if(visible){
-                extendBtn.setStyle("-fx-base : #4286f4");
-                rootPane.setBottom(expandPane);
-                //TODO increase rootPane (BorderPane) height to match the required size with treeViewTable & TextField
-                //TODO Unfix Height size (allow resize)
+                expandButton.setStyle("-fx-base : #4286f4");
+                rootPane.setCenter(expandPane);
+                stage.setMinWidth(534);//pour avoir une interface correcte, Pas demander?
+                stage.setHeight(400);
+                stage.setMaxHeight(Double.MAX_VALUE);
             }else{
-                extendBtn.setStyle("");
-                rootPane.setBottom(null);
-                //TODO reduce rootPane (BorderPane) height to match the required size without treeViewTable & TextField
-                //TODO Fix Height size (allow resize)
+                expandButton.setStyle("");//remettre le style par défault
+                rootPane.setCenter(null);//cacher le borderpane, l'implementation du BorderPlane gere  les valeurs null et initialise une valeur par default
+                stage.setMaxHeight(133);//Fix Height
+                stage.setMinWidth(440);//pour avoir une interface correcte, Pas demander?
             }
         });
-        
+        stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.intValue() < 200){ //si l'utilisateur redimensionne la fenêtre avec une hauteur inférieure à 200 px, executer l'action du button
+                expandButton.fire();
+            }
+       });
+        //FIX height
+        stage.setMinHeight(133);
+        stage.setMaxHeight(133);
+        stage.setMinWidth(440);//pour avoir une interface correcte, Pas demander?
         stage.setScene(new Scene(rootPane));
         stage.setTitle("Lecteur Multimédia VLC");
         stage.show();

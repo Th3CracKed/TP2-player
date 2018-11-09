@@ -5,9 +5,6 @@
  */
 package ui;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
 /**
  *
  * @author Asus
@@ -31,11 +28,6 @@ public class musicModel {
         this.musique = musique;
     }
     
-    public StringProperty musicProperty() { 
-         if (musique == null) musique = "Musique Inconnu";
-         return new SimpleStringProperty(this,musique); 
-    }
-    
 
     public String getAuteur() {
         return auteur;
@@ -45,11 +37,6 @@ public class musicModel {
         this.auteur = auteur;
     }
     
-    public StringProperty auteurProperty() { 
-        if (auteur == null) auteur = "Auteur Inconnu";
-        return new SimpleStringProperty(this,auteur); 
-    }
-    
 
     public String getDuree() {
         return duree;
@@ -57,10 +44,5 @@ public class musicModel {
 
     public void setDuree(String duree) {
         this.duree = duree;
-    }
-    
-    public StringProperty dureeProperty() { 
-        if (duree == null) duree = "00:00";
-        return new SimpleStringProperty(this,duree); 
     }
 }

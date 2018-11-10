@@ -9,12 +9,12 @@ package ui;
  *
  * @author Asus
  */
-public class musicModel {
+public class MusicModel {
     private String musique;
     private String auteur;
     private String duree;
 
-    public musicModel(String music, String auteur, String duree) {
+    public MusicModel(String music, String auteur, String duree) {
         this.musique = music;
         this.auteur = auteur;
         this.duree = duree;
